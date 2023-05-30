@@ -10,29 +10,23 @@ import pandas as pd
 from datetime import datetime
 import re
 
-def clean_data():
-    df = pd.read_csv("solicitudes_credito.csv", sep=";", index_col=0)
+def clean_df(df):
+    df = df.dropna(axis=0, inplace=True)
+    df = df.drop_duplicates(inplace=True)
 
-    df.dropna(axis=0, inplace=True)
-    df.drop_duplicates(inplace=True)
+    for columna in ['sexo', 'tipo_de_emprendimiento', 'idea_negocio', 'línea_credito', 'barrio']:
+        df[columna] = df[columna].str.lower()
+        df[columna] = df[columna].apply(lambda x: x.replace('_', ' '))
+        df[columna] = df[columna].apply(lambda x: x.replace('-', ' '))
 
-    columns_to_lower = ['sexo', 'tipo_de_emprendimiento', 'idea_negocio', 'línea_credito', 'barrio']
-    columns_to_replace = ['idea_negocio', 'barrio']
-
-    for column in columns_to_lower:
-        df[column] = df[column].str.lower()
-        df[column] = df[column].apply(lambda x: x.replace('_', ' '))
-        df[column] = df[column].apply(lambda x: x.replace('-', ' '))
-
-    for column in columns_to_replace:
-        df[column] = df[column].str.replace('-', '').str.replace('_', '').str.replace(' ', '').str.replace('.', '')
-
-    df['monto_del_credito'] = df['monto_del_credito'].str.replace(r'\$|,|\..*$', '').astype(int)
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\$[\s*]", "")
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace(",", "")
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\.00", "")
+    df['monto_del_credito'] = df['monto_del_credito'].astype(int)
+    
     df['comuna_ciudadano'] = df['comuna_ciudadano'].astype(float)
 
-    date_format = "%Y/%m/%d" if len(re.findall("^\d+/", df['fecha_de_beneficio'].iloc[0])[0]) - 1 == 4 else "%d/%m/%Y"
-    df['fecha_de_beneficio'] = pd.to_datetime(df['fecha_de_beneficio'], format=date_format)
+    df['fecha_de_beneficio'] = df['fecha_de_beneficio'].apply(lambda x: datetime.strptime(x, "%Y/%m/%d") if (len(re.findall("^\d+/", x)[0]) - 1) == 4 else datetime.strptime(x, "%d/%m/%Y"))
 
-    df.drop_duplicates(inplace=True)
     return df
 
