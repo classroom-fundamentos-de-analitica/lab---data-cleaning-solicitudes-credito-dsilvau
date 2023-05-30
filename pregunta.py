@@ -11,6 +11,7 @@ from datetime import datetime
 import re
 
 def clean_data():
+    df = pd.read_csv("solicitudes_credito.csv", sep=";", index_col=0)
     df = df.dropna(axis=0, inplace=True)
     df = df.drop_duplicates(inplace=True)
 
