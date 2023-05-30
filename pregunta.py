@@ -18,9 +18,9 @@ def clean_data():
         df[columna] = df[columna].apply(lambda x: x.replace('-', ' '))
 
     # Depurar la columna monto_del_credito quitando los carácteres extraños (No numéricos)
-    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\$[\s*]", "")
-    df['monto_del_credito'] = df['monto_del_credito'].str.replace(",", "")
-    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\.00", "")
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace(',', '')
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\$[\s*]", "", regex=True)
+    df['monto_del_credito'] = df['monto_del_credito'].str.replace("\.00", "", regex=True)
     df['monto_del_credito'] = df['monto_del_credito'].astype(int)
     
     # Corregir tipo de dato de la columna comuna_ciudadano
